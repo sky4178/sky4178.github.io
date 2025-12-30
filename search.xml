@@ -4,6 +4,44 @@
   
     
     <entry>
+      <title>春节快乐</title>
+      <link href="/2025/12/30/post/"/>
+      <url>/2025/12/30/post/</url>
+      
+        <content type="html"><![CDATA[<div style="background: linear-gradient(135deg, #fffbe6 60%, #ffe066 100%); min-height: 100vh; padding: 40px 0 40px 0; border-radius: 24px; box-shadow: 0 4px 32px #ffe06633;">  <div align="center" style="margin-top: 30px;">    <h1 style="background: linear-gradient(90deg, #ff4e50, #f9d423); -webkit-background-clip: text; color: transparent; font-size: 2.6em; font-weight: bold; margin-bottom: 0.2em;">🎉 春节快乐 🎉</h1>    <img src="/assert/springFestival.png" alt="春节快乐" style="max-width: 520px; width: 90vw; border-radius: 18px; box-shadow: 0 4px 18px #eab54355; margin: 24px 0 32px 0;" />  </div>  <div align="center" style="max-width: 700px; margin: 0 auto; padding: 0 18px;">    <div style="font-size: 1.3em; font-weight: bold; color: #e17055; margin-bottom: 12px;">新春快乐，万事如意！🧧</div>    <hr style="border: none; border-top: 2px dashed #f9ca24; width: 60%; margin: 18px auto;"/>    <div style="font-size: 1.1em; color: #636e72; line-height: 2; text-align: center;">      春节，是中华民族最重要的传统节日。无论身在何处，大家都会在这一天与家人团聚，共享天伦之乐。<br/>      <span style="color: #fd9644; font-weight: bold;">新的一年，愿你前程似锦，身体健康，阖家幸福，心想事成！</span><br/>      让我们一起迎接充满希望的 <b style="color:#e17055;">2026</b> 年！<br/>      <span style="font-size:1.5em;">🧨🧨🧨</span>    </div>  </div></div>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 日常 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>圣诞节快乐</title>
+      <link href="/2025/12/25/post/"/>
+      <url>/2025/12/25/post/</url>
+      
+        <content type="html"><![CDATA[<div align="center"><img src="/assert/christmas.png" alt="圣诞节快乐" style="max-width: 400px; border-radius: 12px; box-shadow: 0 2px 8px #ccc; margin-bottom: 20px;" /></div><div align="center"><b>圣诞节快乐！</b></div><br/><p style="text-align:center; font-size: 1.1em; line-height: 2;">我没要求你请我大餐。我不是八见奈杏菜。<br/>可是，疯狂星期四不V我50是什么意思？<br/>你的钱包怎么了？你才只欠我50吧？<br/>再这样下去，你一个月欠我二百，一年欠我两万，最后就要以身相许了。<br/>作为群友，我必须得拿走你V我的50。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> 日常 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>MyBatis多参数传递之@Param究竟加还是不加？</title>
       <link href="/2025/12/16/post/"/>
       <url>/2025/12/16/post/</url>
@@ -11,6 +49,14 @@
         <content type="html"><![CDATA[<p>MyBatis 里的 <code>@Param</code> 常被“凭感觉”使用：有时候不写也能跑，有时候不写就报错。下面讲清楚：什么时候必须写、为什么有时能省、如何优雅收束。</p><hr><h2 id="什么时候必须写-Param"><a href="#什么时候必须写-Param" class="headerlink" title="什么时候必须写 @Param"></a>什么时候必须写 <code>@Param</code></h2><ol><li><strong>多个参数</strong>：方法有两个及以上参数时写清名字，避免 MyBatis 自动生成的 <code>param1/param2</code>。  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Device&gt; <span class="title function_">getDeviceList</span><span class="params">(<span class="meta">@Param(&quot;deviceId&quot;)</span> String deviceId,</span></span><br><span class="line"><span class="params">                           <span class="meta">@Param(&quot;deviceName&quot;)</span> String deviceName)</span>;</span><br></pre></td></tr></table></figure></li><li><strong>需要别名</strong>：想让 SQL 中的变量名更语义化时。  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Device&gt; <span class="title function_">getDeviceList</span><span class="params">(<span class="meta">@Param(&quot;id&quot;)</span> String deviceId)</span>;</span><br><span class="line"><span class="comment">// SQL 中使用 #&#123;id&#125;</span></span><br></pre></td></tr></table></figure></li><li><strong>SQL 用到了 <code>${}</code></strong>：当需要拼接列名或表名时，参数也要标记，否则无法命中。谨慎使用 <code>${}</code>，注意注入风险。  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mapper 接口</span></span><br><span class="line">List&lt;Device&gt; <span class="title function_">getDeviceList</span><span class="params">(<span class="meta">@Param(&quot;columnName&quot;)</span> String columnName)</span>;</span><br><span class="line"><span class="comment">// XML</span></span><br><span class="line">select * from t_device order by $&#123;columnName&#125; desc</span><br></pre></td></tr></table></figure></li><li><strong>动态 SQL 中引用参数</strong>：哪怕只有一个参数，只要在 <code>&lt;if/&gt;</code>、<code>&lt;choose/&gt;</code> 等里用到它，也最好显式声明。  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// mapper 接口</span></span><br><span class="line">List&lt;Device&gt; <span class="title function_">getDeviceList</span><span class="params">(<span class="meta">@Param(&quot;deviceId&quot;)</span> String deviceId)</span>;</span><br><span class="line"><span class="comment">// XML</span></span><br><span class="line">&lt;select id=<span class="string">&quot;getDeviceList&quot;</span> parameterType=<span class="string">&quot;String&quot;</span> resultType=<span class="string">&quot;Device&quot;</span>&gt;</span><br><span class="line">  select * from t_device</span><br><span class="line">  &lt;where&gt;</span><br><span class="line">    &lt;<span class="keyword">if</span> test=<span class="string">&quot;deviceId != null and deviceId != &#x27;&#x27;&quot;</span>&gt;</span><br><span class="line">      device_id = #&#123;deviceId&#125;</span><br><span class="line">   &lt;/<span class="keyword">if</span>&gt;</span><br><span class="line"> &lt;/where&gt;</span><br><span class="line">&lt;/select&gt;</span><br></pre></td></tr></table></figure></li></ol><hr><h2 id="速查清单"><a href="#速查清单" class="headerlink" title="速查清单"></a>速查清单</h2><ul><li>只有一个参数，SQL 里也不做动态判断：可不写，但写了更稳。  </li><li>任何 <code>${}</code>、动态 SQL、多个参数场景：必须写。  </li><li>想换个更语义化的名字：写。</li></ul><hr><h2 id="为啥有时不写也能跑？"><a href="#为啥有时不写也能跑？" class="headerlink" title="为啥有时不写也能跑？"></a>为啥有时不写也能跑？</h2><p>IDEA 或 Maven 若给编译器加了 <code>-parameters</code>，编译出的字节码会保留方法参数的真实名字。MyBatis 读取到这些名字后，就能用 <code>deviceId</code>、<code>deviceName</code> 代替默认的 <code>param1/param2</code>，于是“没写也能用”。</p><blockquote><p>风险在于：  </p><ul><li>换了构建方式、JDK 或关闭 <code>-parameters</code>，参数名丢失，瞬间报错。  </li><li>团队里有人没开这个编译选项，拉代码后就踩坑。</li></ul></blockquote><hr><h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><ul><li>多参数、动态 SQL、<code>${}</code> 场景一律加 <code>@Param</code>，不要赌编译参数。  </li><li>需要传入列名&#x2F;表名时，白名单校验后再用 <code>${}</code>，减少注入风险。  </li><li>项目统一在 <code>pom.xml</code> 或编译脚本里声明 <code>-parameters</code>，但把它当成兜底，不是省略 <code>@Param</code> 的理由。</li></ul>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> Java开发 </tag>
+            
+            <tag> Mybatis </tag>
+            
+        </tags>
       
     </entry>
     
@@ -24,6 +70,12 @@
         <content type="html"><![CDATA[<h2 id="博客启航"><a href="#博客启航" class="headerlink" title="博客启航"></a>博客启航</h2><p>欢迎来到我的个人博客！这是我用 Hexo 和 GitHub Pages 搭建的第一个站点，记录学习与成长的点滴。</p><h3 id="为什么选择-Hexo-GitHub"><a href="#为什么选择-Hexo-GitHub" class="headerlink" title="为什么选择 Hexo + GitHub"></a>为什么选择 Hexo + GitHub</h3><ul><li><strong>Hexo</strong>：轻量、快速，支持 Markdown，适合写作和技术分享。</li><li><strong>GitHub Pages</strong>：免费托管，全球访问速度快，适合个人博客。</li></ul><h3 id="搭建过程简述"><a href="#搭建过程简述" class="headerlink" title="搭建过程简述"></a>搭建过程简述</h3><ol><li>安装 Hexo 和相关依赖</li><li>初始化博客项目</li><li>选择并美化主题</li><li>部署到 GitHub Pages</li></ol><h3 id="后续计划"><a href="#后续计划" class="headerlink" title="后续计划"></a>后续计划</h3><ul><li>分享技术文章与学习笔记</li><li>记录生活与成长</li><li>持续优化博客内容与样式</li></ul><p>感谢你的访问，欢迎留言交流！</p>]]></content>
       
       
+      
+        <tags>
+            
+            <tag> 日常 </tag>
+            
+        </tags>
       
     </entry>
     
