@@ -4,6 +4,27 @@
   
     
     <entry>
+      <title>乐观锁和悲观锁</title>
+      <link href="/2026/03/10/post/"/>
+      <url>/2026/03/10/post/</url>
+      
+        <content type="html"><![CDATA[<p>并发修改同一条数据时，最常见的问题就是“丢失更新”。这也是乐观锁和悲观锁存在的核心原因。</p><blockquote><p>悲观锁是“先锁再改”，乐观锁是“提交时校验再改”。</p></blockquote><hr><p>比如账户余额是 <code>100</code>，两个请求同时扣款：</p><ul><li>请求1扣 <code>20</code></li><li>请求2扣 <code>30</code></li></ul><p>如果都先读到旧值 <code>100</code>，最后结果可能变成 <code>70</code>，而正确结果应该是 <code>50</code>。</p><p>为了解决这个问题，常见方案只有两类：</p><ul><li><strong>悲观锁</strong>：先锁住，再修改</li><li><strong>乐观锁</strong>：先不锁，提交时检查数据有没有被别人改过</li></ul><hr><h2 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h2><p>悲观锁假设冲突经常发生，所以直接把记录锁住。</p><p>常见写法：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> balance</span><br><span class="line"><span class="keyword">from</span> <span class="keyword">user</span></span><br><span class="line"><span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">for</span> <span class="keyword">update</span>;</span><br></pre></td></tr></table></figure><p>拿到锁的事务先执行，其他事务要等它提交后才能继续。优点是结果稳定、控制强；缺点是会阻塞，吞吐量低，还有死锁风险。</p><p>适合场景：</p><ul><li>写多读少</li><li>热点数据竞争激烈</li><li>数据不能出错，且可以接受等待</li></ul><hr><h2 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h2><p>乐观锁假设大多数时候不会冲突，所以不提前加锁，而是在更新时带上条件。</p><p>最常见的是 <code>version</code> 方案：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> <span class="keyword">user</span></span><br><span class="line"><span class="keyword">set</span> balance <span class="operator">=</span> <span class="number">80</span>, version <span class="operator">=</span> <span class="number">2</span></span><br><span class="line"><span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> version <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure><p>只有当数据库里的 <code>version</code> 还是旧值时，这次更新才会成功；如果别人已经改过，这条 SQL 会影响 <code>0</code> 行，业务层再决定是否重试。</p><p>它的关键在于：<code>update ... where ...</code> 是数据库原子操作，判断和更新一次完成，所以不会发生错误覆盖。</p><p>适合场景：</p><ul><li>读多写少</li><li>冲突概率低</li><li>可以接受失败后重试</li><li>更关注并发性能</li></ul><hr><h2 id="两者区别"><a href="#两者区别" class="headerlink" title="两者区别"></a>两者区别</h2><table><thead><tr><th>维度</th><th>乐观锁</th><th>悲观锁</th></tr></thead><tbody><tr><td>思路</td><td>提交时检查</td><td>修改前先加锁</td></tr><tr><td>是否阻塞</td><td>通常不阻塞</td><td>会阻塞</td></tr><tr><td>并发性能</td><td>高</td><td>较低</td></tr><tr><td>冲突处理</td><td>失败或重试</td><td>等待</td></tr><tr><td>常见实现</td><td><code>version</code>、旧值判断</td><td><code>for update</code></td></tr></tbody></table><hr><h2 id="实际怎么选"><a href="#实际怎么选" class="headerlink" title="实际怎么选"></a>实际怎么选</h2><p>可以直接按这个原则判断：</p><ul><li><strong>读多写少、普通 CRUD</strong>：优先乐观锁</li><li><strong>冲突频繁、热点竞争强</strong>：优先悲观锁</li><li><strong>库存扣减这类固定规则更新</strong>：优先原子条件更新</li></ul><p>库存场景里也常见这种写法：</p><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> product</span><br><span class="line"><span class="keyword">set</span> stock <span class="operator">=</span> stock <span class="operator">-</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">where</span> id <span class="operator">=</span> <span class="number">1</span> <span class="keyword">and</span> stock <span class="operator">&gt;</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure><p>这不一定是标准 <code>version</code> 乐观锁，但本质也是并发控制，因为它把“校验”和“扣减”合成了一条原子 SQL。</p><hr><h2 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h2><ul><li><strong>悲观锁</strong>：我先锁住，别人别动</li><li><strong>乐观锁</strong>：你们先改，提交时我再检查</li></ul><p>如果你用的是 MyBatis-Plus，工程上通常更推荐直接用 <code>@Version</code> 做标准乐观锁。</p>]]></content>
+      
+      
+      
+        <tags>
+            
+            <tag> Java开发 </tag>
+            
+            <tag> Mybatis </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>春节快乐</title>
       <link href="/2025/12/30/post/"/>
       <url>/2025/12/30/post/</url>
